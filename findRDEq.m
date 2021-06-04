@@ -12,6 +12,7 @@ function [rdEq,flag,numEquivRDEQ] = findRDEq(A,B)
 rdEq=[];
 [m,n]=size(A);
 maxL=max(m,n);
+%can use LH2 here to get index list instead
 [neLoc,flag1]=findNashEq(A,B);
 if flag1==0
     flag=0;
@@ -27,7 +28,6 @@ else  %if there are equilibria and there are no errors
         numEquivRDEQ=1;
     else
         flag=2;
-        
         pairsToCheck=combnk(1:1:numEq,2);
         %returns two columns.  Reduce game to 2x2 payoffs defined by rows
         %and then compare RDEq there
@@ -36,6 +36,7 @@ else  %if there are equilibria and there are no errors
         pairs=[];
         rdm=[];
         
+        %Faster than full check, slightly suboptimal
         for i=1:L  %all possible point combinations
             p1=neLoc(:,pairsToCheck(i,1));
             p2=neLoc(:,pairsToCheck(i,2));

@@ -10,29 +10,26 @@ plotEndFlag=1;
 tstep=1;
 tmax=20;
 
-cdPur=0;
-cdEva=0;
+cdPur=0.2;
+cdEva=0.2;
 
 %utemp=permn(-2:.5:2,2)';
 %utemp=permn(-2:0.5:2,2)';
 utemp=permn(-1:.25:1,2)';
-upmax=2;
+upmax=0.5;
 umax=upmax;
 utype.radius=upmax;
 utemp=mapUtempToUvec(utemp,"circle",utype);
 max_steps_to_predict=1;
 utemp_perm = permuteOverTime(utemp,max_steps_to_predict);
 
-Game.uType="velstep";
-%Options: velstep (step of constant size, from velocity)
-%         accel (double integrator)
+% Game.uType="velstep";
+% %Options: velstep (step of constant size, from velocity)
+% %         accel (double integrator)
 Game.dt=tstep;
 
-% Red and blue teams, Sred and Sblue
-% S contains state information
-
-Qpur = diag([10 10 0 0]); Rpur = diag([0.1 1]);
-Qeva = diag([10 10 0 0]); Reva = diag([5 10]);
+Qpur = diag([10 10 0 0]); Rpur = diag([10 10]);
+Qeva = diag([10 10 0 0]); Reva = diag([10 10]);
 
 qrTrue=[diag(Qeva);diag(Reva)];
 
@@ -51,9 +48,9 @@ Q_target_eva = 5*eye(2);
 % Ppur=Peva;
 %This can be shunted off to a separate function
 n=0; %n is now the iteration index (yes, misuse of var names)
-xTrue=[[0 0 1.0 1.0]'; [10 4 0 0]'];
-xPur=xTrue;
-xEva=xTrue;
+xTrue=[[0 0 1.0 1.0]'; [10 10 0 0]'];
+xPurMean=xTrue;
+xEvaMean=xTrue;
 axisveck=[-20 20 -5 35];
 
 if plotFlag==1
@@ -66,8 +63,8 @@ end
 
 % wStore{1}=wloc;
 % xPartStore{1}=xPur_part;
-xPurS{1}=xPur;
-xEvaS{1}=xEva;
+xPurS{1}=xPurMean;
+xEvaS{1}=xEvaMean;
 xTrueS{1}=xTrue;
 dJS=[];
 Jp0=0;
@@ -76,7 +73,8 @@ for ij=1:tstep:tmax
     n=n+1
     tic
     
-    xPurMean=[xPur;diag(Qeva);diag(Reva)];
+    xPurMean=xTrue;
+    xEvaMean=xTrue;
     
     %Pursuer and evader controller are run "separately" with their own sets
     % of measurements.  I've stripped out the measurement/filtering code
@@ -141,8 +139,6 @@ for ij=1:tstep:tmax
     Seva_e.Jparams.Q_target = Q_target_eva;
     Seva_e.params.cd=cdEva;
     gameState_e = gameState_p;
-    gameState_e.xPur=xEva(1:4);
-    gameState_e.xEva=xEva(5:8);
     [uPurEst,uEvaTrue,flag]=f_dyn2(Spur_e,Seva_e,gameState_e,zeros(4,1));
     
     %actual propagation
@@ -217,7 +213,7 @@ if plotEndFlag==1
     xlabel('East displacement (m)');
     ylabel('North displacement (m)');
     legend('Pursuer','Evader');
-    axis([0 90 0 10])
+    axis(20*[-1 1 -1 1])
     figset
     
 end

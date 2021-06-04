@@ -34,8 +34,6 @@ if generateUsingUT
     [Cp0,Ce0] = generateCostMatrices(SpurTemp,SevaTemp,gameStateTemp);
     CpSum = Cp0*w_mean_center;
     CeSum = Ce0*w_mean_center;
-%     uPsum = uP0*w_mean_center;
-%     uEsum = uE0*w_mean_center;
     sgn = 1;
     for ij=1:2*nx
         colno = mod(ij,nx)+1;
@@ -48,8 +46,6 @@ if generateUsingUT
         [Cp1,Ce1] = generateCostMatrices(SpurTemp,SevaTemp,gameStateTemp);
         CpSum = CpSum + Cp1*w_mean_reg;
         CeSum = CeSum + Ce1*w_mean_reg;
-%         uPsum = uPsum + uP1*w_mean_reg;
-%         uEsum = uEsum + uE1*w_mean_reg;
     end
     Cpur=CpSum;
     Ceva=CeSum;
@@ -72,6 +68,9 @@ Sminimax.uE=Seva.uMat{indminimax(2)};
 [rdeq,flag]=findRDEq(-Cpur,-Ceva);
 outputflag=flag;
 
+uP=Spur.uMat;
+uE=Seva.uMat;
+
 if flag==0 %if no unique solution, run LH2 and take E(u) for result
     sol=LH2(-Cpur,-Ceva);
     uPur=sol{1};
@@ -85,6 +84,8 @@ if flag==0 %if no unique solution, run LH2 and take E(u) for result
         uValP=uP{uInd};
         uInd=randsample(nE,1,true,uEva);
         uValE=uE{uInd};
+        uPur=uValP;
+        uEva=uValE;
     end
     Smisc.uPair=[sol{1};sol{2}];
     Smisc.uPairMax=[indexP;indexE];
@@ -100,5 +101,6 @@ else %unique solution found
 end
 Smisc.Cpur = Cpur;
 Smisc.Ceva = Ceva;
+
 end
 
