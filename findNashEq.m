@@ -15,7 +15,8 @@ function [eqLoc,flag,locC,locR] = findNashEq(A,B)
 
 eqLoc=[];
 [m,n]=size(A);
-[mc,nc]=size(B);if m~=mc 
+[mc,nc]=size(B);
+if m~=mc 
     flag=-1;
 elseif n~=nc
     flag=-1;
